@@ -38,13 +38,15 @@ def search_password():
     conn.close()
 
     if result:
-        username_entry.delete(0, tk.END)
-        password_entry.delete(0, tk.END)
-        username_entry.insert(0, result[1])
-        password_entry.insert(0, result[2])
+      website_list.selection_clear(0, tk.END)
+      index = website_list.get(0, tk.END).index(result[0])
+      website_list.selection_set(index)
+      website_list.activate(index)
     else:
         messagebox.showinfo("Info", f"No details for {website} exists.")
 
+
+        
 def delete_password():
     website = website_entry.get()
 
@@ -54,9 +56,11 @@ def delete_password():
     conn.commit()
     conn.close()
 
-    messagebox.showinfo("Info", f"Deleted {website} details.")
-    clear_fields()
-    display_website_list()
+    response = messagebox.askokcancel("Confirmation", f"Do you want to delete {website} details?")
+    if response:
+        clear_fields()
+        display_website_list()
+
 
 def update_password():
     website = website_entry.get()
@@ -82,27 +86,44 @@ def clear_fields():
     username_entry.delete(0, tk.END)
     password_entry.delete(0, tk.END)
 
-def share_password():
-    website = website_entry.get()
-    password = password_entry.get()
 
-    if not website or not password:
-        messagebox.showwarning("Warning", "Please fill in website and password.")
+
+def share_password():
+    selected_website = website_list.get(tk.ACTIVE)
+    if not selected_website:
+        messagebox.showwarning("Warning", "Please select a website from the list.")
         return
 
-    messagebox.showinfo("Share Password", f"You can share the password for {website}: {password}")
+    conn = sqlite3.connect('passwords.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM passwords WHERE website=?", (selected_website,))
+    result = c.fetchone()
+    conn.close()
 
-def toggle_password_visibility():
-    if show_password_var.get():
-        password_entry.config(show="")
+    if result:
+        username, password = result[1], result[2]
+        messagebox.showinfo("Share Password", f"You can share the username and password for {selected_website}:\nUsername: {username}\nPassword: {password}")
     else:
-        password_entry.config(show="*")
+        messagebox.showwarning("Warning", "No details found for the selected website.")
+
 
 
 def read_password():
-    password = password_entry.get()
-    username = username_entry.get()
-    messagebox.showinfo("Username and Password", f"Username: {username}\nPassword: {password}")
+    selected_website = website_list.get(tk.ACTIVE)
+    if not selected_website:
+        messagebox.showwarning("Warning", "Please select a website from the list.")
+        return
+
+    conn = sqlite3.connect('passwords.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM passwords WHERE website=?", (selected_website,))
+    result = c.fetchone()
+    conn.close()
+
+    if result:
+        messagebox.showinfo("Username and Password", f"Website: {result[0]}\nUsername: {result[1]}\nPassword: {result[2]}")
+    else:
+        messagebox.showwarning("Warning", "No details found for the selected website.")
 
 def display_website_list():
     website_list.delete(0, tk.END)
@@ -116,44 +137,10 @@ def display_website_list():
         website_list.insert(tk.END, record[0])
 
 def on_website_select(event):
-    selected_website = website_list.get(website_list.curselection())
-    conn = sqlite3.connect('passwords.db')
-    c = conn.cursor()
-    c.execute("SELECT * FROM passwords WHERE website=?", (selected_website,))
-    result = c.fetchone()
-    conn.close()
-
-    if result:
-        website_entry.delete(0, tk.END)
-        username_entry.delete(0, tk.END)
-        password_entry.delete(0, tk.END)
-        website_entry.insert(0, result[0])
-        username_entry.insert(0, result[1])
-        password_entry.insert(0, result[2])
-        
-def on_website_select(event):
-    selected_website = website_list.get(website_list.curselection())
-
-    # Clear the entry boxes by default
+    selected_website = website_list.get(tk.ACTIVE)
     website_entry.delete(0, tk.END)
-    username_entry.delete(0, tk.END)
-    password_entry.delete(0, tk.END)
-
-    # Check if the selected website should fill the entry boxes
-    if selected_website:
-        conn = sqlite3.connect('passwords.db')
-        c = conn.cursor()
-        c.execute("SELECT * FROM passwords WHERE website=?", (selected_website,))
-        result = c.fetchone()
-        conn.close()
-
-        # Fill the entry boxes if a matching record is found
-        if result:
-            website_entry.insert(0, result[0])
-            username_entry.insert(0, result[1])
-            password_entry.insert(0, result[2])
-
-
+    website_entry.insert(0, selected_website)
+    
 # GUI setup
 window = tk.Tk()
 window.title("Password Management System")
@@ -179,9 +166,6 @@ password_label.place(x=900, y=55)
 password_entry = tk.Entry(window,fg='Dark green',width=22,font=('Arial',15))
 password_entry.place(x=1140, y=75,height=32)
 
-show_password_var = tk.BooleanVar()
-show_password_checkbox = tk.Checkbutton(window,font=('Arial',20) ,text="Show Password",fg='maroon', variable=show_password_var, command=toggle_password_visibility)
-show_password_checkbox.place(x=1140,y=120)
 
 generate_button = tk.Button(window, width=10,font=('Arial',30), bg='violet' ,text="Generate\nPassword", command=generate_password)
 generate_button.place(x=950, y=645,height=85)
@@ -220,4 +204,8 @@ setting_icon = tk.PhotoImage(file="C:/Users/User/OneDrive/Desktop/password manag
 setting_button = tk.Button(window,width=50,image=setting_icon, command=open_settings)
 setting_button.place(x=1400,y=700,height=50)
 
+
+
 window.mainloop()
+
+ 
