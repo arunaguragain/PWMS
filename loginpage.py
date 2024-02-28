@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox 
 from PIL import Image, ImageTk 
+import sqlite3
 
 class PasswordManagerLogin:
     def __init__(self, root):
@@ -9,7 +10,7 @@ class PasswordManagerLogin:
         self.root.title("Password Management System")
 
         # Load logo image
-        self.image = Image.open('C:/Users/User/OneDrive/Desktop/password management system/logo.png')
+        self.image = Image.open('./logo.png')
         self.img = ImageTk.PhotoImage(self.image)
         tk.Label(self.root, image=self.img, bg='white', width=950).place(x=2, y=2, height=800)
         
@@ -40,27 +41,37 @@ class PasswordManagerLogin:
         # Get the entered username and password
         username = self.username_entry.get()
         password = self.password_entry.get()
-
-        # Check if both username and password are entered
-        if not username or not password:
-            messagebox.showerror("Error", "Please enter both username and password.")
-            return
-
-        # Dummy authentication (replace with your authentication logic)
-        if self.authenticate(username, password):
-            messagebox.showinfo("Login Successful", "Welcome, {}".format(username))
-            # Add logic to navigate to the main dashboard or another page here
+        
+        if username == '' or password == '':
+           messagebox.showerror('Error', 'All Fields Are Required.')
         else:
-            messagebox.showerror("Login Failed", "Invalid username or password")
+           conn = sqlite3.connect("users.db")
+           db = conn.cursor()
+        
+        
+        db.execute("SELECT * FROM users WHERE email=? AND password=?", (username, password))
 
-    def authenticate(self, username, password):
-        # Replace this with your actual authentication logic (e.g., database check, API call)
-        # This is a dummy authentication for illustration purposes
-        return username == "admin" and password == "password123"
+        user_data = db.fetchone()
+        
+        if user_data==None:
+            messagebox.showerror('Error','Invalid username or password.')
+            self.username_entry.delete(0, 'end')
+            self.password_entry.delete(0, 'end') 
+        else:
+            messagebox.showinfo('Welcome','Login is Successful.')
+           
+        
+            conn.close()
+            root.destroy()
+            import homepage
+
+
     
     def signup(self):
         # Placeholder function for sign up functionality
         print("Signing up...")
+        root.destroy()
+        import registration_page
 
 # Create the main window
 root = tk.Tk()

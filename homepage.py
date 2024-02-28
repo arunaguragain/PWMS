@@ -116,13 +116,14 @@ def on_website_select(event):
     selected_website = website_list.get(tk.ACTIVE)
     website_entry.delete(0, tk.END)
     website_entry.insert(0, selected_website)
+    print(selected_website,event)
     
 # GUI setup
 window = tk.Tk()
 window.title("Password Management System")
 window.geometry("1600x1600")
 
-image = Image.open("C:/Users/User/OneDrive/Desktop/password management system/logo.png") 
+image = Image.open("./logo.png") 
 photo = ImageTk.PhotoImage(image)
 window.iconphoto(True, photo)
 
@@ -170,8 +171,11 @@ website_list.bind("<<ListboxSelect>>", on_website_select)
 display_website_list()
 
 def open_settings():
-    pass
+    window.destroy()
+    import settings
+    
 
+    
 setting_button = tk.Button(window,width=8,text="settings",font=('Arial',30),bg='royal blue', command=open_settings)
 setting_button.place(x=1330,y=700,height=50)
 

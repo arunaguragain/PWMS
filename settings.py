@@ -99,10 +99,14 @@ class SettingsPage(tk.Frame):
             # Add logout functionality here
             # For example, you can close the main window and open a login window
             self.master.destroy()  # Close the main window
+            import loginpage
+            
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Password Management System - Settings")
-    root.geometry("600x400")  # Set window size
-    settings_page = SettingsPage(master=root)
-    settings_page.mainloop()
+
+
+root = tk.Tk()
+root.title("Password Management System - Settings")
+root.geometry("1600x1600")  # Set window size
+settings_page = SettingsPage(master=root)
+settings_page.mainloop()
+
