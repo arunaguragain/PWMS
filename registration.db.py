@@ -1,52 +1,55 @@
 import tkinter as tk
 from tkinter import messagebox
-import sqlite3
 
-def register_user():
-    # Connect to the database
-    conn = sqlite3.connect('passwords.db')
-    cursor = conn.cursor()
-
-    # Get values from entry widgets
-    website = website_entry.get()
-    username = username_entry.get()
+def register():
+    full_name = full_name_entry.get()
+    email = email_entry.get()
     password = password_entry.get()
+    re_password = re_password_entry.get()
+    
+    # Validate password and re-enter password
+    if password != re_password:
+        messagebox.showerror("Error", "Passwords do not match")
+        return
+    
+    # Insert code to save the registration details to a database here
+    
+    # Show success message
+    messagebox.showinfo("Success", "Registration successful")
 
-    # Insert new user into the database
-    insert_query = "INSERT INTO passwords (website, username, password) VALUES (?, ?, ?)"
-    cursor.execute(insert_query, (website, username, password))
-    conn.commit()
+# Create main window
+root = tk.Tk()
+root.title("Registration Form")
 
-    messagebox.showinfo("Success", "Registration successful!")
+# Create labels
+full_name_label = tk.Label(root, text="Full Name:")
+full_name_label.grid(row=0, column=0, padx=5, pady=5)
 
-    # Close the connection
-    conn.close()
+email_label = tk.Label(root, text="Email:")
+email_label.grid(row=1, column=0, padx=5, pady=5)
 
-# Create Tkinter window
-window = tk.Tk()
-window.title("Password Management System - Registration")
-
-# Website entry
-website_label = tk.Label(window, text="Website:")
-website_label.grid(row=0, column=0, padx=5, pady=5)
-website_entry = tk.Entry(window)
-website_entry.grid(row=0, column=1, padx=5, pady=5)
-
-# Username entry
-username_label = tk.Label(window, text="Username:")
-username_label.grid(row=1, column=0, padx=5, pady=5)
-username_entry = tk.Entry(window)
-username_entry.grid(row=1, column=1, padx=5, pady=5)
-
-# Password entry
-password_label = tk.Label(window, text="Password:")
+password_label = tk.Label(root, text="Password:")
 password_label.grid(row=2, column=0, padx=5, pady=5)
-password_entry = tk.Entry(window, show="*")
+
+re_password_label = tk.Label(root, text="Re-enter Password:")
+re_password_label.grid(row=3, column=0, padx=5, pady=5)
+
+# Create entry fields
+full_name_entry = tk.Entry(root)
+full_name_entry.grid(row=0, column=1, padx=5, pady=5)
+
+email_entry = tk.Entry(root)
+email_entry.grid(row=1, column=1, padx=5, pady=5)
+
+password_entry = tk.Entry(root, show="*")
 password_entry.grid(row=2, column=1, padx=5, pady=5)
 
-# Register button
-register_button = tk.Button(window, text="Register", command=register_user)
-register_button.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+re_password_entry = tk.Entry(root, show="*")
+re_password_entry.grid(row=3, column=1, padx=5, pady=5)
 
-# Run the Tkinter event loop
-window.mainloop()
+# Create register button
+register_button = tk.Button(root, text="Register", command=register)
+register_button.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
+
+# Start the GUI
+root.mainloop()
